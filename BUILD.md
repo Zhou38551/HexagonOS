@@ -1,63 +1,52 @@
-# HexagonOS 0.1 - 构建指南
+# HexagonOS 0.2 - 构建指南
 
 ## 前提条件
-- VirtualBox 6.1.50 或更高
-- Ubuntu 22.04 Desktop ISO
-- Cubic
+- GitHub 账号
+- 本仓库有 GitHub Actions 权限
 
-## 步骤 1：装 Ubuntu 虚拟机
-1. VirtualBox 新建虚拟机
-2. 内存 4096 MB
-3. 硬盘 40 GB
-4. 挂载 ubuntu-22.04-desktop-amd64.iso
-5. 装 Ubuntu，用户名 hexagon
+## 自动构建
 
-## 步骤 2：装 Cubic
-sudo apt-add-repository ppa:cubic-wizard/release
-sudo apt update
-sudo apt install cubic
+每次 push 到 main 分支，GitHub Actions 会自动：
+1. 启动一个 Ubuntu 22.04 虚拟机
+2. 安装 build 工具
+3. 打包成 HexagonOS-0.2.iso
+4. 上传到 Artifacts
 
-## 步骤 3：准备定制文件
-把 HexagonOS-0.1/ 里的所有文件拷到 Ubuntu 家目录：
-  ~/HexagonOS-0.1/
+## 手动触发
 
-## 步骤 4：启动 Cubic
-sudo cubic
+1. 进入仓库的 **Actions** 标签
+2. 点左边 **Build HexagonOS ISO**
+3. 右边 **Run workflow** → **Run workflow**
 
-1. 选择项目目录（默认即可）
-2. 选择基础 ISO：ubuntu-22.04-desktop-amd64.iso
-3. 进入 chroot 终端
+## 下载 ISO
 
-## 步骤 5：在 chroot 里操作
+1. 进 Actions → 最新的绿色运行
+2. 页面底部 **Artifacts**
+3. 下载 **HexagonOS-0.2-iso**
 
-apt install -y dialog
+## 命令列表（0.2）
 
-cp /home/hexagon/HexagonOS-0.1/shell/hexagon-shell.sh /usr/local/bin/
-chmod +x /usr/local/bin/hexagon-shell.sh
+### 文件系统
+- ls                列出文件
+- cd <path>         切换目录
+- pwd               显示当前路径
+- mkdir <path>      创建目录
+- rm <path>         删除文件
+- cat <path>        显示文件内容
 
-cp /home/hexagon/HexagonOS-0.1/installer/hexagon-installer.sh /usr/local/bin/
-chmod +x /usr/local/bin/hexagon-installer.sh
+### 系统信息
+- time / date       显示时间
+- version           显示版本
+- history           命令历史
 
-cp /home/hexagon/HexagonOS-0.1/config/os-release /etc/os-release
-cp /home/hexagon/HexagonOS-0.1/branding/issue /etc/issue
-cp /home/hexagon/HexagonOS-0.1/branding/motd /etc/motd
+### 其他
+- echo <text>       输出文字
+- clear             清屏
+- help              帮助
+- Shut down         关机
 
-echo "/usr/local/bin/hexagon-shell.sh" >> /home/hexagon/.bashrc
-
-nano /boot/grub/grub.cfg
-# 把 menuentry "Ubuntu" 改成 "HexagonOS 0.1"
-
-exit
-
-## 步骤 6：Cubic 自动打包
-Cubic 会问你：
-- 压缩方式：选 gzip
-- 输出文件：HexagonOS-0.1.iso
-
-等几分钟，ISO 就生成了。
-
-## 步骤 7：测试
-用 VirtualBox 挂载 HexagonOS-0.1.iso 启动：
-- 看到 GRUB 菜单：HexagonOS 0.1
-- 登录后进入 Hexagon Shell
-- 敲 time / Home page / open / Create document / rename / Shut down / help
+### 兼容旧命令（0.1）
+- Home page         列出所有文件
+- open <file>       打开文件
+- Create document   创建文档
+- rename <old> <new> 重命名
