@@ -1,0 +1,12 @@
+Welcome to HexagonOS 0.1
+
+Available commands:
+  time               Show current time
+  Home page          List files
+  open <file>        Open a file
+  Create document    Create a new document
+  rename <old> <new> Rename a file
+  Shut down          Shutdown system
+  help               Show this help
+
+For more information, type 'help'.
