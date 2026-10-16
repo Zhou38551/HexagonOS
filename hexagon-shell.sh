@@ -1,34 +1,123 @@
 #!/bin/bash
 # ============================================
-# HexagonOS 0.1 - Hexagon Shell
-# 命令逻辑与 0.0.1 的 kernel.c 一致
+# HexagonOS 0.2 - Hexagon Shell
 # ============================================
 
-# 数据目录
 HEX_DATA="$HOME/HexagonFiles"
+HEX_HISTORY="$HOME/.hex_history"
 mkdir -p "$HEX_DATA/docs/notes" "$HEX_DATA/system" "$HEX_DATA/home"
 
-# ---- 显示欢迎语 ----
+CWD=""
+
+hex_prompt() {
+    if [ -z "$CWD" ]; then
+        echo "/"
+    else
+        echo "/$CWD"
+    fi
+}
+
+hex_resolve() {
+    local p="$1"
+    p=$(echo "$p" | sed 's/^<//; s/>$//')
+    if [ -z "$CWD" ]; then
+        echo "$HEX_DATA/$p"
+    else
+        echo "$HEX_DATA/$CWD/$p"
+    fi
+}
+
 clear
-echo "Welcome to HexagonOS 0.1"
-echo "Type 'help' to see available commands."
+echo "Welcome to HexagonOS 0.2"
+echo "Type 'help' for available commands."
 echo ""
 
-# ---- 主循环 ----
 while true; do
-    echo -n "> "
+    echo -n "$(hex_prompt) > "
     read -r command
+    echo "$command" >> "$HEX_HISTORY"
 
     case "$command" in
-        "time")
+        "time"|"date")
             echo "Current time: $(date '+%Y-%m-%d %H:%M:%S')"
+            ;;
+
+        "ls")
+            if [ -z "$CWD" ]; then
+                ls -1 "$HEX_DATA" | sed 's|^|<&>|'
+            else
+                ls -1 "$HEX_DATA/$CWD" | sed 's|^|<&>|'
+            fi
+            ;;
+
+        "cd "*)
+            target=$(echo "${command#cd }" | sed 's/^<//; s/>$//; s|/$||')
+            if [ "$target" == ".." ]; then
+                CWD=$(dirname "$CWD" | sed 's|^\.$||')
+            elif [ -d "$HEX_DATA/$CWD/$target" ]; then
+                if [ -z "$CWD" ]; then
+                    CWD="$target"
+                else
+                    CWD="$CWD/$target"
+                fi
+            else
+                echo "Error: Directory not found."
+            fi
+            ;;
+
+        "pwd")
+            echo "$(hex_prompt)"
+            ;;
+
+        "mkdir "*)
+            target=$(echo "${command#mkdir }" | sed 's/^<//; s/>$//')
+            full=$(hex_resolve "$target")
+            mkdir -p "$full"
+            echo "Created directory: $target"
+            ;;
+
+        "rm "*)
+            target=$(echo "${command#rm }" | sed 's/^<//; s/>$//')
+            full=$(hex_resolve "$target")
+            if [ -e "$full" ]; then
+                rm -rf "$full"
+                echo "Deleted: $target"
+            else
+                echo "Error: File not found."
+            fi
+            ;;
+
+        "cat "*)
+            target=$(echo "${command#cat }" | sed 's/^<//; s/>$//')
+            full=$(hex_resolve "$target")
+            if [ -f "$full" ]; then
+                cat "$full"
+            else
+                echo "Error: File not found."
+            fi
+            ;;
+
+        "echo "*)
+            echo "${command#echo }"
+            ;;
+
+        "history")
+            if [ -f "$HEX_HISTORY" ]; then
+                nl "$HEX_HISTORY"
+            fi
+            ;;
+
+        "version")
+            echo "HexagonOS 0.2 (Build: $(date '+%Y%m%d'))"
+            ;;
+
+        "clear")
+            clear
             ;;
 
         "Home page")
             echo "Files in root:"
-            if [ -d "$HEX_DATA" ]; then
-                find "$HEX_DATA" -type f | sed "s|$HEX_DATA|  |" | sed 's|^\(.*\)$|<\1>|'
-            fi
+            find "$HEX_DATA" -type f | sed "s|$HEX_DATA|  |" | sed 's|^\(.*\)$|<\1>|'
             ;;
 
         "open "*)
@@ -77,7 +166,6 @@ while true; do
             new=$(echo "$args" | awk '{print $2}' | sed 's/^<//; s/>$//')
             if [ -z "$old" ] || [ -z "$new" ]; then
                 echo "Usage: rename <old_path> <new_path>"
-                echo "Example: rename <docs/a.txt> <docs/b.txt>"
             elif [ -f "$HEX_DATA/$old" ]; then
                 mkdir -p "$(dirname "$HEX_DATA/$new")"
                 mv "$HEX_DATA/$old" "$HEX_DATA/$new"
@@ -94,14 +182,25 @@ while true; do
             ;;
 
         "help")
-            echo "Available commands:"
-            echo "  time"
-            echo "  Home page"
-            echo "  open <file>"
-            echo "  Create document"
-            echo "  rename <old> <new>"
-            echo "  Shut down"
-            echo "  help"
+            echo "HexagonOS 0.2 commands:"
+            echo "  time / date        Show current time"
+            echo "  ls                 List files"
+            echo "  cd <path>          Change directory"
+            echo "  pwd                Show current path"
+            echo "  mkdir <path>       Create directory"
+            echo "  rm <path>          Delete file"
+            echo "  cat <path>         Show file content"
+            echo "  echo <text>        Print text"
+            echo "  history            Command history"
+            echo "  version            Show version"
+            echo "  clear              Clear screen"
+            echo ""
+            echo "  Home page          List all files"
+            echo "  open <file>        Open a file"
+            echo "  Create document    Create a new document"
+            echo "  rename <old> <new> Rename a file"
+            echo "  Shut down          Shutdown"
+            echo "  help               This help"
             ;;
 
         "")
