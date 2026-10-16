@@ -1,2 +1,2 @@
 # HexagonOS
-HexagonOS 0.1-a command-line Linux distribution
+HexagonOS 0.2-a command-line Linux distribution
