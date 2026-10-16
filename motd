@@ -1,12 +1,21 @@
-Welcome to HexagonOS 0.1
+Welcome to HexagonOS 0.2
 
 Available commands:
-  time               Show current time
-  Home page          List files
+  time / date        Show current time
+  ls                 List files
+  cd <path>          Change directory
+  pwd                Show current path
+  mkdir <path>       Create directory
+  rm <path>          Delete file
+  cat <path>         Show file content
+  echo <text>        Print text
+  history            Command history
+  version            Show version
+  clear              Clear screen
   open <file>        Open a file
   Create document    Create a new document
   rename <old> <new> Rename a file
-  Shut down          Shutdown system
+  Shut down          Shutdown
   help               Show this help
 
-For more information, type 'help'.
+Type 'help' for detailed information.
