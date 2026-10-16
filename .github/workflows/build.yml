@@ -24,16 +24,16 @@ jobs:
         cp hexagon-shell.sh iso/boot/
         cat > iso/boot/grub/grub.cfg << 'EOF'
         set timeout=5
-        menuentry "HexagonOS 0.1" {
-            echo "Hello from HexagonOS 0.1"
+        menuentry "HexagonOS 0.2" {
+            echo "Hello from HexagonOS 0.2"
             sleep 3
             reboot
         }
         EOF
-        grub-mkrescue -o HexagonOS-0.1.iso iso/
+        grub-mkrescue -o HexagonOS-0.2.iso iso/
 
     - name: Upload ISO
       uses: actions/upload-artifact@v4
       with:
-        name: HexagonOS-0.1-iso
-        path: HexagonOS-0.1.iso
+        name: HexagonOS-0.2-iso
+        path: HexagonOS-0.2.iso
